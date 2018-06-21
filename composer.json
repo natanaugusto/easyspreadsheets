@@ -1,0 +1,24 @@
+{
+    "name": "natanaugusto/easyspreadsheet",
+    "description": "Planilha",
+    "type": "library",
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Natan Augusto",
+            "email": "natan.augusto@plugg.to"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "EasySpreadsheets\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.0@dev"
+    }
+}
