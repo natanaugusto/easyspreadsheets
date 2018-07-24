@@ -83,7 +83,7 @@ class Handler
      */
     public function __construct()
     {
-        $this->currentRow += self::$OFFSET_LINE;
+        $this->currentRow = self::$OFFSET_LINE;
     }
     /**
      * Return the current row number @var $currentRow
@@ -187,16 +187,23 @@ class Handler
     /**
      * Load the spreadshee resource
      *
-     * @param string $path
+     * @param string  $path
+     * @param boolean $force
      * @return void
      */
-    public function load($path)
+    public function load($path, $force = false)
     {
         $this->path = $path;
         $this->resource = IOFactory::load($path);
         $this->activesheet = $this->resource->getActiveSheet();
         $this->highestRow = (int)$this->activesheet->getHighestRow();
         $this->highestColumn = $this->activesheet->getHighestColumn();
+        if($force) {
+            $this->header = [];
+            $this->rows = [];
+            $this->currentRow = self::$OFFSET_LINE;
+            $this->linesRead = 0;
+        }
         $this->loadHeader();
         $this->loadRows();
     }
@@ -311,7 +318,7 @@ class Handler
      * @param string $text
      * @return void
      */
-    public function writeColumn($cell, $text)
+    public function writeCell($cell, $text)
     {
         return $this->activesheet->getCell($cell)->setValue($text);
     }

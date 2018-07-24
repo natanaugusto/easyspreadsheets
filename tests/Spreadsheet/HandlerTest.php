@@ -103,4 +103,22 @@ class HandlerTest extends TestCase
             $row['Column E']['colors']['fill']
         );
     }
+
+    public function testCellWrite()
+    {
+        $this->spreadsheet->load($this->file);
+        $this->spreadsheet->writeCell('A2', 'Writed');
+        $this->spreadsheet->save();
+
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRow(2);
+        $this->assertEquals('Writed', $row['Column A']);
+
+        $this->spreadsheet->writeCell('A2', 'Line 2A');
+        $this->spreadsheet->save();
+        
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRow(2);
+        $this->assertEquals('Line 2A', $row['Column A']);
+    }
 }
