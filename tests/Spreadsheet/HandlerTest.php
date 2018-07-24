@@ -8,6 +8,36 @@ class HandlerTest extends TestCase
 {
     protected $file;
     protected $spreadsheet;
+    protected $header = [
+        'Column A',
+        'Column B',
+        'Column C',
+        'Column D',
+        'Column E',
+    ];
+    protected $rows =  [
+        2 => [
+            'Column A' => 'Line 2A',
+            'Column B' => 'Line 2B',
+            'Column C' => 2,
+            'Column D' => '26/10/89',
+            'Column E' => 'Line 2E'],
+
+        3 => [
+            'Column A' => 'Line 3A',
+            'Column B' => 'Line 3B',
+            'Column C' => 3,
+            'Column D' => '26/10/89',
+            'Column E' => 'Line 2E'],
+
+        4 => [
+            'Column A' => 'Line 4A',
+            'Column B' => 'Line 4B',
+            'Column C' => 4,
+            'Column D' => '26/10/89',
+            'Column E' => 'Line 2E'],
+
+    ];
 
     protected function setUp()
     {
@@ -28,42 +58,24 @@ class HandlerTest extends TestCase
     public function testGetHead()
     {
         $this->spreadsheet->load($this->file);
-        $head = [
-            'Column A',
-            'Column B',
-            'Column C',
-            'Column D',
-            'Column E',
-        ];
-        $this->assertEquals($head, $this->spreadsheet->getHeader());
+        $this->assertEquals($this->header, $this->spreadsheet->getHeader());
     }
     
     public function testGetRows()
     {
         $this->spreadsheet->load($this->file);
-        $rows = [
-            2 => [
-                'Column A' => 'Line 2A',
-                'Column B' => 'Line 2B',
-                'Column C' => 2,
-                'Column D' => '26/10/89',
-                'Column E' => 'Line 2E'],
+        $this->assertEquals($this->rows, $this->spreadsheet->getRows());
+    }
 
-            3 => [
-                'Column A' => 'Line 3A',
-                'Column B' => 'Line 3B',
-                'Column C' => 3,
-                'Column D' => '26/10/89',
-                'Column E' => 'Line 2E'],
-
-            4 => [
-                'Column A' => 'Line 4A',
-                'Column B' => 'Line 4B',
-                'Column C' => 4,
-                'Column D' => '26/10/89',
-                'Column E' => 'Line 2E'],
-
-        ];
-        $this->assertEquals($rows, $this->spreadsheet->getRows());
+    public function testNaigateBetweenRows()
+    {
+        $this->spreadsheet->load($this->file);
+        $this->assertEquals($this->rows[2], $this->spreadsheet->getRow());
+        $this->assertTrue($this->spreadsheet->hasNext());
+        $this->assertEquals($this->rows[3], $this->spreadsheet->getRow());
+        $this->assertTrue($this->spreadsheet->hasNext());
+        $this->assertEquals($this->rows[4], $this->spreadsheet->getRow());
+        $this->assertFalse($this->spreadsheet->hasNext());
+        $this->assertEquals($this->rows[2], $this->spreadsheet->getRow(2));
     }
 }
