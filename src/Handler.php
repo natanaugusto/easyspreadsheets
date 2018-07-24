@@ -338,11 +338,18 @@ class Handler
                         ->getColor()
                         ->getARGB(),
                 'fill' =>
-                    $this->activesheet
-                        ->getStyle($position)
-                        ->getFill()
-                        ->getEndColor()
-                        ->getARGB(),
+                    [
+                        'start' => $this->activesheet
+                                    ->getStyle($position)
+                                    ->getFill()
+                                    ->getStartColor()
+                                    ->getARGB(),
+                        'end' => $this->activesheet
+                                    ->getStyle($position)
+                                    ->getFill()
+                                    ->getEndColor()
+                                    ->getARGB(),
+                    ],
             ]
         ];
     }
