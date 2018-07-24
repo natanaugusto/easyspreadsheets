@@ -164,6 +164,7 @@ class Handler
             );
             $column++;
         }
+        return $row;
     }
     /**
      * Return the path to the current file on memory @var $path
@@ -315,14 +316,13 @@ class Handler
         return $this->activesheet->getCell($cell)->setValue($text);
     }
     /**
-     * Recupera as cores do backgroud e da fonte de uma celula da 
-     * planilha
+     * Recover background and font colors from a worksheet cell
      * 
-     * @param integer $line  A linha que deve ser recuperada. Por 
-     * padrão, a linha deve ser incrementada em 2 p/ contornar a 
-     * questão da primeira linha ser a header e o array @var $rows
-     * começar em 0.
-     * @param string  $index O indice que a cor deve ser recuperada
+     * @param integer $line  The line that must be retrieved. Per
+     * default, the line must be incremented by 2 to bypass the
+     * the first line question is the header and array @var $ rows
+     * start at 0.
+     * @param string  $index The index that the color should be retrieved
      * 
      * @return array [colors=>[fill => 'cor da fill', font => 'cor da font']]
      */
@@ -349,10 +349,10 @@ class Handler
         ];
     }
     /**
-     * Corverte uma cor ARGB em uma nomenclatura variante entre red, green, blue, gray, black, white
+     * Corvert a ARGB color on variable name between red, green, blue, gray, black, white
      * (Os numeros chumbados foram escolhidos arbitráriamente)
      * 
-     * @param string $argb Valor ARGB da cor
+     * @param string $argb ARGB value
      * @return string
      */
     public function getColorName($argb)
@@ -362,7 +362,7 @@ class Handler
             $rgb = array_map('hexdec', $hex);
         }
         // Validando as cores de maneira Pepeada
-        // Branco, preto, cinza
+        // White, black, gray
         if($rgb[0] === $rgb[1] && $rgb[1] === $rgb[2]) {
             $rgb = array_sum($rgb);
             if($rgb > 750) {
@@ -374,19 +374,19 @@ class Handler
             return 'gray';
         }
         $pepe = 80;
-        // Vermelho
+        // Red
         if($rgb[0] > 150 && $rgb[0] > $rgb[1] && $rgb[0] > $rgb[2]) {
             if(($rgb[0] - $rgb[1]) > $pepe && ($rgb[0] - $rgb[2]) > $pepe) {
                 return 'red';
             }
         }
-        // Verde
+        // Green
         if($rgb[1] > 150 && $rgb[1] > $rgb[0] && $rgb[1] > $rgb[2]) {
             if(($rgb[1] - $rgb[0]) > $pepe && ($rgb[1] - $rgb[2]) > $pepe) {
                 return 'green';
             }
         }
-        // Azul
+        // Blue
         if($rgb[2] > 150 && $rgb[2] > $rgb[0] && $rgb[2] > $rgb[1]) {
             if(($rgb[2] - $rgb[0]) > $pepe && ($rgb[2] - $rgb[1]) > $pepe) {
                 return 'green';
@@ -395,11 +395,11 @@ class Handler
         return 'unkown';
     }
     /**
-     * Converte a posição numerica passada por columna e linha para uma 
-     * posição no padrão de planilhas A1, A2, B5, etc
+     * Converts the numerical position passed by column and line to a
+     * position in spreadsheet pattern A1, A2, B5, etc.
      *
-     * @param mixed $column String ou Inteiro representando a coluna em questão
-     * @param integer $line Linha que deve ser retornada
+     * @param mixed $column String or Integer representing the column in question
+     * @param integer $line Line to be returned
      * @return void
      */
     public function convertPosition($column, $line)

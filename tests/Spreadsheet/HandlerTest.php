@@ -78,4 +78,12 @@ class HandlerTest extends TestCase
         $this->assertFalse($this->spreadsheet->hasNext());
         $this->assertEquals($this->rows[2], $this->spreadsheet->getRow(2));
     }
+
+    public function testGetColors()
+    {
+        $this->spreadsheet->load($this->file);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals('white', $row['Column E']['colors']['font']);
+        $this->assertEquals('red', $row['Column E']['colors']['fill']);
+    }
 }
