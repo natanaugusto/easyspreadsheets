@@ -143,7 +143,19 @@ class Handler
         
         if(is_null($row)) {
             return [];
-        }
+        }        
+        $this->currentRow++;
+        return $row;
+    }
+    /**
+     * Return row with colors info
+     *
+     * @param integer $line
+     * @return array
+     */
+    public function getRowFullInfo($line = null)
+    {
+        $row = $this->getRow($line);
         $column = 1;
         foreach($row as $index => $value) {
             $row[$index] = array_merge(
@@ -152,8 +164,6 @@ class Handler
             );
             $column++;
         }
-        $this->currentRow++;
-        return $row;
     }
     /**
      * Return the path to the current file on memory @var $path
@@ -202,13 +212,13 @@ class Handler
         return $writer->save($this->path);
     }
     /**
-     * Verifica se existem linhas a serem processadas
+     *Verify if exists more rows to read
      *
      * @return boolean
      */
     public function hasNext()
     {
-        return $this->currentRow < $this->highestRow ? true : false;
+        return $this->currentRow <= $this->highestRow ? true : false;
     }
     /**
      * Recover the first line of the spreadsheet assumed that's the header of spreadsheet
