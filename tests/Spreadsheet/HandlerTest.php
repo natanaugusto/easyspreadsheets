@@ -83,7 +83,15 @@ class HandlerTest extends TestCase
     {
         $this->spreadsheet->load($this->file);
         $row = $this->spreadsheet->getRowFullInfo(2);
-        $this->assertEquals('white', $row['Column E']['colors']['font']);
-        $this->assertEquals('red', $row['Column E']['colors']['fill']);
+        $this->assertEquals('FFFFFFFF', $row['Column E']['colors']['font']);
+        $this->assertEquals('FF993300', $row['Column E']['colors']['fill']);
+
+        $row = $this->spreadsheet->getRowFullInfo(3);
+        $this->assertEquals('FFFFFFFF', $row['Column E']['colors']['font']);
+        $this->assertEquals('FF008080', $row['Column E']['colors']['fill']);
+
+        $row = $this->spreadsheet->getRowFullInfo(4);
+        $this->assertEquals('FFFFFFFF', $row['Column E']['colors']['font']);
+        $this->assertEquals('FF008080', $row['Column E']['colors']['fill']);
     }
 }

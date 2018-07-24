@@ -331,68 +331,20 @@ class Handler
         $position = $this->convertPosition($index, $line);
         return [
             'colors' => [
-                'font' => $this->getColorName(
+                'font' =>
                     $this->activesheet
                         ->getStyle($position)
                         ->getFont()
                         ->getColor()
-                        ->getARGB()
-                    ),
-                'fill' => $this->getColorName(
+                        ->getARGB(),
+                'fill' =>
                     $this->activesheet
                         ->getStyle($position)
                         ->getFill()
                         ->getEndColor()
-                        ->getARGB()
-                    ),
+                        ->getARGB(),
             ]
         ];
-    }
-    /**
-     * Corvert a ARGB color on variable name between red, green, blue, gray, black, white
-     * (Os numeros chumbados foram escolhidos arbitráriamente)
-     * 
-     * @param string $argb ARGB value
-     * @return string
-     */
-    public function getColorName($argb)
-    {
-        if (strlen($argb) == 8) { //ARGB
-            $hex = array($argb[2].$argb[3], $argb[4].$argb[5], $argb[6].$argb[7]);
-            $rgb = array_map('hexdec', $hex);
-        }
-        // Validando as cores de maneira Pepeada
-        // White, black, gray
-        if($rgb[0] === $rgb[1] && $rgb[1] === $rgb[2]) {
-            $rgb = array_sum($rgb);
-            if($rgb > 750) {
-                return 'white';
-            }
-            if($rgb < 180) {
-                return 'black';
-            }
-            return 'gray';
-        }
-        $pepe = 80;
-        // Red
-        if($rgb[0] > 150 && $rgb[0] > $rgb[1] && $rgb[0] > $rgb[2]) {
-            if(($rgb[0] - $rgb[1]) > $pepe && ($rgb[0] - $rgb[2]) > $pepe) {
-                return 'red';
-            }
-        }
-        // Green
-        if($rgb[1] > 150 && $rgb[1] > $rgb[0] && $rgb[1] > $rgb[2]) {
-            if(($rgb[1] - $rgb[0]) > $pepe && ($rgb[1] - $rgb[2]) > $pepe) {
-                return 'green';
-            }
-        }
-        // Blue
-        if($rgb[2] > 150 && $rgb[2] > $rgb[0] && $rgb[2] > $rgb[1]) {
-            if(($rgb[2] - $rgb[0]) > $pepe && ($rgb[2] - $rgb[1]) > $pepe) {
-                return 'green';
-            }
-        }
-        return 'unkown';
     }
     /**
      * Converts the numerical position passed by column and line to a
