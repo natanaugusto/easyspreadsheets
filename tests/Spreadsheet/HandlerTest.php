@@ -67,7 +67,7 @@ class HandlerTest extends TestCase
         $this->assertEquals($this->rows, $this->spreadsheet->getRows());
     }
 
-    public function testNaigateBetweenRows()
+    public function testNavigateBetweenRows()
     {
         $this->spreadsheet->load($this->file);
         $this->assertEquals($this->rows[2], $this->spreadsheet->getRow());
