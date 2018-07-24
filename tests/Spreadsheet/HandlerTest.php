@@ -126,19 +126,19 @@ class HandlerTest extends TestCase
     {
         $this->spreadsheet->load($this->file, true);
 
-        $this->spreadsheet->paintRange('A2', 'FF00A65D', 'font');
+        $this->spreadsheet->setTextColor('A2', 'FF00A65D');
         $this->spreadsheet->save();
         $this->spreadsheet->load($this->file, true);
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
 
-        $this->spreadsheet->paintRange('A2', 'FF000000', 'font');
+        $this->spreadsheet->setTextColor('A2', 'FF000000');
         $this->spreadsheet->save();
         $this->spreadsheet->load($this->file, true);
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
 
-        $this->spreadsheet->paintRange('A2:B3', 'FF00A65D', 'font');
+        $this->spreadsheet->setTextColor('A2:B3', 'FF00A65D');
         $this->spreadsheet->save();
         $this->spreadsheet->load($this->file, true);
         $row = $this->spreadsheet->getRowFullInfo(2);
@@ -148,7 +148,7 @@ class HandlerTest extends TestCase
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
         $this->assertEquals('FF00A65D', $row['Column B']['colors']['font']);
 
-        $this->spreadsheet->paintRange('A2:B3', 'FF000000', 'font');
+        $this->spreadsheet->setTextColor('A2:B3', 'FF000000');
         $this->spreadsheet->save();
         $this->spreadsheet->load($this->file, true);
         $row = $this->spreadsheet->getRowFullInfo(2);
@@ -160,4 +160,76 @@ class HandlerTest extends TestCase
         
     }
 
+    public function testPaintFills()
+    {
+        $this->spreadsheet->load($this->file, true);
+
+        $this->spreadsheet->setFillColor('A2', 'FF00A65D');
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals(
+            ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
+            $row['Column A']['colors']['fill']
+        );
+
+        $this->spreadsheet->setFillColor('A2', ['end' => 'FF0066B3']);
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals('FF0066B3', $row['Column A']['colors']['fill']['end']);
+
+        $this->spreadsheet->setFillColor('A2', 'FF000000');
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals(
+            ['start' => 'FF000000', 'end' => 'FF000000'],
+            $row['Column A']['colors']['fill']
+        );
+
+        $this->spreadsheet->setFillColor('A2:B3', 'FF00A65D');
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals(
+            ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
+            $row['Column A']['colors']['fill']
+        );
+        $this->assertEquals(
+            ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
+            $row['Column B']['colors']['fill']
+        );
+        $row = $this->spreadsheet->getRowFullInfo(3);
+        $this->assertEquals(
+            ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
+            $row['Column A']['colors']['fill']
+        );
+        $this->assertEquals(
+            ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
+            $row['Column B']['colors']['fill']
+        );
+
+        $this->spreadsheet->setFillColor('A2:B3', 'FF000000');
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
+        $row = $this->spreadsheet->getRowFullInfo(2);
+        $this->assertEquals(
+            ['start' => 'FF000000', 'end' => 'FF000000'],
+            $row['Column A']['colors']['fill']
+        );
+        $this->assertEquals(
+            ['start' => 'FF000000', 'end' => 'FF000000'],
+            $row['Column B']['colors']['fill']
+        );
+        $row = $this->spreadsheet->getRowFullInfo(3);
+        $this->assertEquals(
+            ['start' => 'FF000000', 'end' => 'FF000000'],
+            $row['Column A']['colors']['fill']
+        );
+        $this->assertEquals(
+            ['start' => 'FF000000', 'end' => 'FF000000'],
+            $row['Column B']['colors']['fill']
+        );
+    }
 }

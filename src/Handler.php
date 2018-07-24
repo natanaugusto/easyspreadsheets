@@ -280,46 +280,58 @@ class Handler
         $this->rows = $rows;
     }
     /**
-     * Paint a cells range
+     * Paint the text of a cells range
      *
-     * @param string $begin
-     * @param string $range
-     * @param string $type Types fill or font
+     * @param string $rang
+     * @param string $color
      * @return void
      */
-    public function paintRange($range, $color, $type = 'fill')
+    public function setTextColor($range, $color)
     {
-        switch($type) {
-            case 'fill':
-                $this->setColorFill(
-                    $color,
-                    $this->activesheet->getStyle($range)->getFill()
-                );
-                break;
-            case 'font':
-                $this->activesheet
-                    ->getStyle($range)
-                    ->getFont()
-                    ->getColor()
-                    ->setARGB($color);
-                break;
-        }
+        $this->activesheet
+            ->getStyle($range)
+            ->getFont()
+            ->getColor()
+            ->setARGB($color);
     }
 
-    public function setColorFill($color, &$fill)
+    /**
+     * Set a background color on a fill
+     *
+     * @param string $range
+     * @param mixed  $color
+     * @return void
+     */
+    public function setFillColor($range, $color)
     {
         if(is_array($color)) {
             if(is_assoc($color)) {
-                $colorStart = $color['start'];
-                $colorEnd = $color['end'];
+                if(!empty($color['start'])) {
+                    $colorStart = $color['start'];
+                }
+                if(!empty($color['end'])) {
+                    $colorEnd = $color['end'];
+                }
             }
         } else {
             $colorStart = $colorEnd = $color;
         }
-        $fill->getStartColor()
-            ->setARGB($colorStart);
-        $fill->getEndColor()
-            ->setARGB($colorEnd);
+        if(!empty($colorStart)) {
+            $this->activesheet
+                ->getStyle($range)
+                ->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()
+                ->setARGB($colorStart);
+        }        
+        if(!empty($colorEnd)) {
+            $this->activesheet
+                ->getStyle($range)
+                ->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getEndColor()
+                ->setARGB($colorEnd);
+        }            
     }
     /**
      * Write a text on a cell
