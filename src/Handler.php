@@ -71,7 +71,7 @@ class Handler
      *
      * @var array
      */
-    protected $headerRow = [];
+    protected $header = [];
     /**
      * Rows array
      *
@@ -113,41 +113,13 @@ class Handler
         return $this->highestColumn;
     }
     /**
-     * Return the path to the current file on memory @var $path
-     *
-     * @return string
-     */
-    public function getSpreadsheetPath()
-    {
-        return $this->path;
-    }
-    /**
-     * Load the spreadshee resource
-     *
-     * @param string $path
-     * @return void
-     */
-    public function load($path)
-    {
-        $this->path = $path;
-        $this->resource = IOFactory::load($path);
-        $this->activesheet = $this->resource->getActiveSheet();
-        $this->highestRow = (int)$this->activesheet->getHighestRow() + self::$OFFSET_LINE;
-        $this->highestColumn = $this->activesheet->getHighestColumn();
-        $this->loadHeader();
-        $this->loadRows();
-    }
-    /**
-     * Save the spreadsheet setted on @var $resource on path @var $path
+     * Return the laoded row
      *
      * @return void
      */
-    public function save()
+    public function getRows()
     {
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
-            $this->resource
-        );
-        return $writer->save($this->path);
+        return $this->rows;
     }
     /**
      * Retorna a linha atual ou a linha passada por parametro
@@ -162,7 +134,7 @@ class Handler
         $row = null;
         do {
             if(empty($this->rows[$line])) {
-                $this->loadSpreadsheetRows();
+                $this->loadRows();
                 continue;
             }
             $row = $this->rows[$line];
@@ -184,6 +156,52 @@ class Handler
         return $row;
     }
     /**
+     * Return the path to the current file on memory @var $path
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+    /**
+     * Return the header @var $header
+     *
+     * @return void
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
+    /**
+     * Load the spreadshee resource
+     *
+     * @param string $path
+     * @return void
+     */
+    public function load($path)
+    {
+        $this->path = $path;
+        $this->resource = IOFactory::load($path);
+        $this->activesheet = $this->resource->getActiveSheet();
+        $this->highestRow = (int)$this->activesheet->getHighestRow();
+        $this->highestColumn = $this->activesheet->getHighestColumn();
+        $this->loadHeader();
+        $this->loadRows();
+    }
+    /**
+     * Save the spreadsheet setted on @var $resource on path @var $path
+     *
+     * @return void
+     */
+    public function save()
+    {
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+            $this->resource
+        );
+        return $writer->save($this->path);
+    }
+    /**
      * Verifica se existem linhas a serem processadas
      *
      * @return boolean
@@ -199,28 +217,22 @@ class Handler
      */
     public function loadHeader()
     {
-        $headerRow = $this->activesheet->rangeToArray(
+        $header = $this->activesheet->rangeToArray(
             "A1:{$this->highestColumn}1"
         )[0];
-        if(empty($headerRow)) {
+        if(empty($header)) {
             throw new \Exception('The first spreadsheet first line is empty');
         }
         
-        foreach($headerRow as $k => $attr) {
+        foreach($header as $k => $attr) {
             if(is_null($attr)) {
                 $this->highestColumn = Coordinate::stringFromColumnIndex(
-                    count($this->headerRow)
+                    count($this->header)
                 );
                 return;
             }
-            $attr = strtolower(
-                preg_replace(
-                    ['/ \(\*\)/', '/ /'],
-                    ['', '_'],
-                    trim($attr)
-                )
-            );
-            $this->headerRow[] = $attr;
+            $attr = trim($attr);
+            $this->header[] = $attr;
         }
     }
     /**
@@ -244,7 +256,7 @@ class Handler
         $result = $this->activesheet->rangeToArray($rangeToRead);
         $rows = [];
         foreach($result as $key => $row) {
-            $rows[$this->linesRead + $key] = array_combine($this->headerRow, $row);
+            $rows[$this->linesRead + $key] = array_combine($this->header, $row);
         }
         $this->linesRead += count($rows);
         $this->rows = $rows;
