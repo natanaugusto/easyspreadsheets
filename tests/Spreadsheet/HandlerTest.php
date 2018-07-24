@@ -1,7 +1,7 @@
 <?php
 namespace Test\Spreadsheet;
 
-use EasySpreadsheet\Handler;
+use EasySpreadsheets\Handler;
 use PHPUnit\Framework\TestCase;
 
 class HandlerTest extends TestCase

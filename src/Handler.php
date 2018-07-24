@@ -1,83 +1,81 @@
 <?php
-namespace EasySpreadsheet;
+namespace EasySpreadsheets;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 class Handler
 {
     /**
-     * Máximo de linhas que devem ser carregadas por vez.
+     * Maximum lines that must be loaded at a time.
      *
      * @var integer $MAX_LINES_LOAD
      */
     protected static $MAX_LINES_LOAD = 5000;
     /**
-     * Primeira linha a ser lida.
-     * (A linha um, normalmente é a do cabeçalho)
+     * Maximum number of lines to be loaded at one time. * First line to be read.
+     * (Line one, usually the one in the header)
      *
      * @var integer
      */
     protected static $OFFSET_LINE = 2;
     /**
-     * Objeto PHPSpreadsheet
+     * Object PHPSpreadsheet
      *
-     * @var PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet
+     * @var PhpOffice\PhpSpreadsheet\Spreadsheet
      */
-    protected $spreadsheet;
+    protected $resource;
     /**
-     * Objeto PHPSpreadsheet
+     * Object PHPSpreadsheet
      *
-     * @var PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $activesheet
+     * @var PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
      */
     protected $activesheet;
     /**
-     * Path da planilha
+     * Path to spreadsheet
      *
-     * @var string
+     * @va
      */
-    protected $spreadsheetPath;
+    protected $path;
     /**
-     * Obejeto Coordinate
+     * Object Coordinate
      *
-     * @var PhpOffice\PhpSpreadsheet\Cell\Coordinate $coordinate
+     * @var PhpOffice\PhpSpreadsheet\Cell\Coordinate
      */
     protected $coordinate;
     /**
-     * Ultima coluna usada na planilha
+     * Last spreadsheet column used
      *
-     * @var string $highestColumn
+     * @var string
      */
     protected $highestColumn;
     /**
-     * Ultima linha usada
+     * Last spreadsheet line used
      *
-     * @var integer $highestRow
+     * @var integer
      */
     protected $highestRow;
     /**
-     * Quantidade de linhas que já foram lidas e armazenadas na
-     * memoria.
+     * Lines readed number
      *
-     * @var integer $linesRead
+     * @var integer
      */
     protected $linesRead = 0;
     /**
-     * A linha atual que está sendo analisada
+     * Current row on memory
      *
-     * @var integer $currentRow
+     * @var integer
      */
     protected $currentRow;
     /**
      * Primeira linha da planilha Header
      *
-     * @var array $headerRow
+     * @var array
      */
     protected $headerRow = [];
     /**
-     * Array com a estrutura que facilite o processamento e
-     * envio para a API da PLuggTO
+     * Rows array
      *
-     * @var array $rows
+     * @var array
      */
     protected $rows = [];
     /**
@@ -88,16 +86,16 @@ class Handler
         $this->currentRow += self::$OFFSET_LINE;
     }
     /**
-     * Retorna a linha atual
-     *
+     * Return the current row number @var $currentRow
+     * (@var $currentRow init with the @var $OFFSET_LINE value)
      * @return integer
      */
-    public function getCurrentLine()
+    public function getCurrentRow()
     {
         return $this->currentRow;
     }
     /**
-     * Recupera a ultima linha utilizada
+     * Return the highest row @var $highestRow
      *
      * @return integer
      */
@@ -106,7 +104,7 @@ class Handler
         return $this->highestRow;
     }
     /**
-     * Recupera a ultima coluna utilizada
+     * Return the highest column @var $highestColumn
      *
      * @return string
      */
@@ -115,41 +113,41 @@ class Handler
         return $this->highestColumn;
     }
     /**
-     * Retorna o path da planilha
+     * Return the path to the current file on memory @var $path
      *
      * @return string
      */
     public function getSpreadsheetPath()
     {
-        return $this->spreadsheetPath;
+        return $this->path;
     }
     /**
-     * Carrega a planilha p/ a classe
+     * Load the spreadshee resource
      *
-     * @param string $spreadsheetPath
+     * @param string $path
      * @return void
      */
-    public function loadSpreadsheet($spreadsheetPath)
+    public function load($path)
     {
-        $this->spreadsheetPath = $spreadsheetPath;
-        $this->spreadsheet = IOFactory::load($spreadsheetPath);
-        $this->activesheet = $this->spreadsheet->getActiveSheet();
+        $this->path = $path;
+        $this->resource = IOFactory::load($path);
+        $this->activesheet = $this->resource->getActiveSheet();
         $this->highestRow = (int)$this->activesheet->getHighestRow() + self::$OFFSET_LINE;
         $this->highestColumn = $this->activesheet->getHighestColumn();
-        $this->loadSpreadsheetHeader();
-        $this->loadSpreadsheetRows();
+        $this->loadHeader();
+        $this->loadRows();
     }
     /**
-     * Salva a planilha
+     * Save the spreadsheet setted on @var $resource on path @var $path
      *
      * @return void
      */
-    public function saveSpreadsheet()
+    public function save()
     {
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
-            $this->spreadsheet
+            $this->resource
         );
-        return $writer->save($this->spreadsheetPath);
+        return $writer->save($this->path);
     }
     /**
      * Retorna a linha atual ou a linha passada por parametro
@@ -158,7 +156,7 @@ class Handler
      * 
      * @return array
      */
-    public function getSpreadsheetRow($line = null)
+    public function getRow($line = null)
     {
         $line = is_null($line) ? $this->currentRow : $line;
         $row = null;
@@ -195,13 +193,11 @@ class Handler
         return $this->currentRow < $this->highestRow ? true : false;
     }
     /**
-     * Recupera as colunas que fazem parte da Header do documento. Os nomes 
-     * das colunas, são as propriedades do objeto json que será enviado a
-     * API.
+     * Recover the first line of the spreadsheet assumed that's the header of spreadsheet
      * 
      * @return void
      */
-    public function loadSpreadsheetHeader()
+    public function loadHeader()
     {
         $headerRow = $this->activesheet->rangeToArray(
             "A1:{$this->highestColumn}1"
@@ -228,11 +224,11 @@ class Handler
         }
     }
     /**
-     * Carrega as linhas da planilha p/ um array
+     * Load the @var $resource rows to @var $rows
      * 
      * @return void
      */
-    public function loadSpreadsheetRows()
+    public function loadRows()
     {
         if($this->linesRead === 0) {
             $this->linesRead += self::$OFFSET_LINE;
@@ -254,7 +250,7 @@ class Handler
         $this->rows = $rows;
     }
     /**
-     * Pinta um range de celulas
+     * Paint a cells range
      *
      * @param string $begin
      * @param string $range
@@ -286,10 +282,10 @@ class Handler
         }
     }
     /**
-     * Escreve um texto numa celula
+     * Write a text on a cell
      *
-     * @param [type] $cell
-     * @param [type] $text
+     * @param string $cell
+     * @param string $text
      * @return void
      */
     public function writeColumn($cell, $text)
