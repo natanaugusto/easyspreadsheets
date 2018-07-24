@@ -19,6 +19,12 @@
     "autoload": {
         "psr-4": {
             "EasySpreadsheets\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ],
+        "class-alias": {
+            "EasySpredsheet": "EasySpreadsheets\\Handler"
         }
     },
     "minimum-stability": "dev"

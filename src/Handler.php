@@ -291,16 +291,10 @@ class Handler
     {
         switch($type) {
             case 'fill':
-                $this->activesheet
-                    ->getStyle($range)
-                    ->getFill()
-                    ->getStartColor()
-                    ->setARGB($color);
-                $this->activesheet
-                    ->getStyle($range)
-                    ->getFill()
-                    ->getEndColor()
-                    ->setARGB($color);
+                $this->setColorFill(
+                    $color,
+                    $this->activesheet->getStyle($range)->getFill()
+                );
                 break;
             case 'font':
                 $this->activesheet
@@ -310,6 +304,22 @@ class Handler
                     ->setARGB($color);
                 break;
         }
+    }
+
+    public function setColorFill($color, &$fill)
+    {
+        if(is_array($color)) {
+            if(is_assoc($color)) {
+                $colorStart = $color['start'];
+                $colorEnd = $color['end'];
+            }
+        } else {
+            $colorStart = $colorEnd = $color;
+        }
+        $fill->getStartColor()
+            ->setARGB($colorStart);
+        $fill->getEndColor()
+            ->setARGB($colorEnd);
     }
     /**
      * Write a text on a cell
