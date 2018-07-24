@@ -1,5 +1,5 @@
 {
-    "name": "natanaugusto/easyspreadsheet",
+    "name": "natanaugusto/easyspreadsheets",
     "description": "A easy way to handle spreadsheets with PHP",
     "type": "library",
     "require": {
