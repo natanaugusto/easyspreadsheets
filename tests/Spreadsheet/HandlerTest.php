@@ -126,21 +126,15 @@ class HandlerTest extends TestCase
     {
         $this->spreadsheet->load($this->file, true);
 
-        $this->spreadsheet->setTextColor('A2', 'FF00A65D');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('font', 'A2', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
 
-        $this->spreadsheet->setTextColor('A2', 'FF000000');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('font', 'A2', 'FF000000');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
 
-        $this->spreadsheet->setTextColor('A2:B3', 'FF00A65D');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('font', 'A2:B3', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
         $this->assertEquals('FF00A65D', $row['Column B']['colors']['font']);
@@ -148,9 +142,7 @@ class HandlerTest extends TestCase
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
         $this->assertEquals('FF00A65D', $row['Column B']['colors']['font']);
 
-        $this->spreadsheet->setTextColor('A2:B3', 'FF000000');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('font', 'A2:B3', 'FF000000');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
         $this->assertEquals('FF000000', $row['Column B']['colors']['font']);
@@ -164,33 +156,25 @@ class HandlerTest extends TestCase
     {
         $this->spreadsheet->load($this->file, true);
 
-        $this->spreadsheet->setFillColor('A2', 'FF00A65D');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('fill', 'A2', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals(
             ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
             $row['Column A']['colors']['fill']
         );
 
-        $this->spreadsheet->setFillColor('A2', ['end' => 'FF0066B3']);
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('fill', 'A2', ['end' => 'FF0066B3']);
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF0066B3', $row['Column A']['colors']['fill']['end']);
 
-        $this->spreadsheet->setFillColor('A2', 'FF000000');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('fill', 'A2', 'FF000000');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals(
             ['start' => 'FF000000', 'end' => 'FF000000'],
             $row['Column A']['colors']['fill']
         );
 
-        $this->spreadsheet->setFillColor('A2:B3', 'FF00A65D');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('fill', 'A2:B3', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals(
             ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
@@ -210,9 +194,7 @@ class HandlerTest extends TestCase
             $row['Column B']['colors']['fill']
         );
 
-        $this->spreadsheet->setFillColor('A2:B3', 'FF000000');
-        $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->setColorsSaveLoad('fill', 'A2:B3', 'FF000000');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals(
             ['start' => 'FF000000', 'end' => 'FF000000'],
@@ -231,5 +213,53 @@ class HandlerTest extends TestCase
             ['start' => 'FF000000', 'end' => 'FF000000'],
             $row['Column B']['colors']['fill']
         );
+    }
+
+    /**
+     * Set the new color on fill/font, save, load and try the assertion.
+     *
+     * @param string $type   Use font/fill
+     * @param string $ranges The ranges to be changed
+     * @param array  $values Format exemples:
+     * 'FF00A65D'
+     * ['start' => 'FF00A65D']
+     * ['end' => 'FF00A65D']
+     * ['start' => 'FF00A65D', 'end' => 'FF00A65D']
+     * @return void
+     */
+    protected function setColorsSaveLoad($type, $ranges, $values)
+    {
+        // Verify if the ranges and values has the same elements amount
+        if(is_array($ranges) && is_array($values)) {
+            if(count($ranges) !== count($values)) {
+                throw new Exception("\$ranges and \$values must have the same numbers of elements.", 1);
+            }
+        }
+        // Validate the type passed
+        switch ($type) {
+            case 'fill':
+                $method = 'setFillColor';
+                break;
+            case 'font':
+                $method = 'setTextColor';
+                break;
+            default:
+                throw new Exception("Error: the type must be 'font' or 'fill'. {$type} is passed", 2);
+                break;
+        }
+        // Set the values
+        switch(gettype($ranges)) {
+            case 'array':
+                foreach($ranges as $key => $range) {
+                    $this->spreadsheet->{$method}($range, $values[$key]);
+                }
+                break;
+            case 'string':
+                $this->spreadsheet->{$method}($ranges, $values);                
+                break;
+        }
+        // Save
+        $this->spreadsheet->save();
+        $this->spreadsheet->load($this->file, true);
     }
 }
