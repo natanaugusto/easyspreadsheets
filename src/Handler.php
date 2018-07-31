@@ -192,7 +192,8 @@ class Handler
      *
      * @param string  $path
      * @param boolean $force
-     * @return void
+     * @throws Exception
+     * @return Handler
      */
     public function load($path, $force = false)
     {
@@ -212,18 +213,20 @@ class Handler
         }
         $this->loadHeader();
         $this->loadRows();
+        return $this;
     }
     /**
      * Save the spreadsheet setted on @var $resource on path @var $path
      *
-     * @return void
+     * @return Handler
      */
     public function save()
     {
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
             $this->resource
         );
-        return $writer->save($this->path);
+        $writer->save($this->path);
+        return $this;
     }
     /**
      *Verify if exists more rows to read
@@ -237,7 +240,8 @@ class Handler
     /**
      * Recover the first line of the spreadsheet assumed that's the header of spreadsheet
      * 
-     * @return void
+     * @throws Exception
+     * @return Handler
      */
     public function loadHeader()
     {
@@ -258,6 +262,8 @@ class Handler
             $attr = trim($attr);
             $this->header[] = $attr;
         }
+
+        return $this;
     }
     /**
      * Load the @var $resource rows to @var $rows
@@ -290,7 +296,7 @@ class Handler
      *
      * @param string $rang
      * @param string $color
-     * @return void
+     * @return Handler
      */
     public function setTextColor($range, $color)
     {
@@ -299,14 +305,14 @@ class Handler
             ->getFont()
             ->getColor()
             ->setARGB($color);
+        return $this;
     }
-
     /**
      * Set a background color on a fill
      *
      * @param string $range
      * @param mixed  $color
-     * @return void
+     * @return Handler
      */
     public function setFillColor($range, $color)
     {
@@ -337,18 +343,20 @@ class Handler
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getEndColor()
                 ->setARGB($colorEnd);
-        }            
+        }
+        return $this;       
     }
     /**
      * Write a text on a cell
      *
      * @param string $cell
      * @param string $text
-     * @return void
+     * @return Handler
      */
     public function writeCell($cell, $text)
     {
-        return $this->activesheet->getCell($cell)->setValue($text);
+        $this->activesheet->getCell($cell)->setValue($text);
+        return $this;
     }
     /**
      * Recover background and font colors from a worksheet cell
