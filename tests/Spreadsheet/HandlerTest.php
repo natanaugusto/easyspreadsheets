@@ -215,6 +215,19 @@ class HandlerTest extends TestCase
         );
     }
 
+    public function testLoadException()
+    {
+        $this->expectException(\Exception::class);
+        $this->spreadsheet->load('file/not/found');
+    }
+
+    public function testGetRowsException()
+    {
+        $this->spreadsheet->load($this->file);
+        $this->expectException(\Exception::class);
+        $this->spreadsheet->getRow('b');
+    }
+
     /**
      * Set the new color on fill/font, save, load and try the assertion.
      *

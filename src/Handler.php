@@ -1,8 +1,8 @@
 <?php
 namespace EasySpreadsheets;
+use Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Writer\Exception;
 class Handler
 {
     /**
@@ -125,12 +125,15 @@ class Handler
      * Retorna a linha atual ou a linha passada por parametro
      *
      * @param integer $line
-     * 
+     * @throws Exception
      * @return array
      */
     public function getRow($line = null)
     {
         $line = is_null($line) ? $this->currentRow : $line;
+        if(!is_integer($line)) {
+            throw new Exception("The line is not a integer", 3);
+        }
         $row = null;
         do {
             if(empty($this->rows[$line])) {
@@ -193,6 +196,9 @@ class Handler
      */
     public function load($path, $force = false)
     {
+        if(!file_exists($path)) {
+            throw new Exception("The file {$path} not found.", 1);
+        }
         $this->path = $path;
         $this->resource = IOFactory::load($path);
         $this->activesheet = $this->resource->getActiveSheet();
@@ -239,7 +245,7 @@ class Handler
             "A1:{$this->highestColumn}1"
         )[0];
         if(empty($header)) {
-            throw new \Exception('The first spreadsheet first line is empty');
+            throw new Exception('The first spreadsheet first line is empty', 2);
         }
         
         foreach($header as $k => $attr) {
