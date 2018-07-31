@@ -113,13 +113,6 @@ class HandlerTest extends TestCase
         $this->spreadsheet->load($this->file, true);
         $row = $this->spreadsheet->getRow(2);
         $this->assertEquals('Writed', $row['Column A']);
-
-        $this->spreadsheet->writeCell('A2', 'Line 2A');
-        $this->spreadsheet->save();
-        
-        $this->spreadsheet->load($this->file, true);
-        $row = $this->spreadsheet->getRow(2);
-        $this->assertEquals('Line 2A', $row['Column A']);
     }
 
     public function testPaintTexts()
@@ -129,11 +122,7 @@ class HandlerTest extends TestCase
         $this->setColorsSaveLoad('font', 'A2', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
-
-        $this->setColorsSaveLoad('font', 'A2', 'FF000000');
-        $row = $this->spreadsheet->getRowFullInfo(2);
-        $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
-
+    
         $this->setColorsSaveLoad('font', 'A2:B3', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
@@ -141,15 +130,6 @@ class HandlerTest extends TestCase
         $row = $this->spreadsheet->getRowFullInfo(3);
         $this->assertEquals('FF00A65D', $row['Column A']['colors']['font']);
         $this->assertEquals('FF00A65D', $row['Column B']['colors']['font']);
-
-        $this->setColorsSaveLoad('font', 'A2:B3', 'FF000000');
-        $row = $this->spreadsheet->getRowFullInfo(2);
-        $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
-        $this->assertEquals('FF000000', $row['Column B']['colors']['font']);
-        $row = $this->spreadsheet->getRowFullInfo(3);
-        $this->assertEquals('FF000000', $row['Column A']['colors']['font']);
-        $this->assertEquals('FF000000', $row['Column B']['colors']['font']);
-        
     }
 
     public function testPaintFills()
@@ -166,13 +146,6 @@ class HandlerTest extends TestCase
         $this->setColorsSaveLoad('fill', 'A2', ['end' => 'FF0066B3']);
         $row = $this->spreadsheet->getRowFullInfo(2);
         $this->assertEquals('FF0066B3', $row['Column A']['colors']['fill']['end']);
-
-        $this->setColorsSaveLoad('fill', 'A2', 'FF000000');
-        $row = $this->spreadsheet->getRowFullInfo(2);
-        $this->assertEquals(
-            ['start' => 'FF000000', 'end' => 'FF000000'],
-            $row['Column A']['colors']['fill']
-        );
 
         $this->setColorsSaveLoad('fill', 'A2:B3', 'FF00A65D');
         $row = $this->spreadsheet->getRowFullInfo(2);
@@ -193,26 +166,6 @@ class HandlerTest extends TestCase
             ['start' => 'FF00A65D', 'end' => 'FF00A65D'],
             $row['Column B']['colors']['fill']
         );
-
-        $this->setColorsSaveLoad('fill', 'A2:B3', 'FF000000');
-        $row = $this->spreadsheet->getRowFullInfo(2);
-        $this->assertEquals(
-            ['start' => 'FF000000', 'end' => 'FF000000'],
-            $row['Column A']['colors']['fill']
-        );
-        $this->assertEquals(
-            ['start' => 'FF000000', 'end' => 'FF000000'],
-            $row['Column B']['colors']['fill']
-        );
-        $row = $this->spreadsheet->getRowFullInfo(3);
-        $this->assertEquals(
-            ['start' => 'FF000000', 'end' => 'FF000000'],
-            $row['Column A']['colors']['fill']
-        );
-        $this->assertEquals(
-            ['start' => 'FF000000', 'end' => 'FF000000'],
-            $row['Column B']['colors']['fill']
-        );
     }
 
     public function testLoadException()
@@ -226,6 +179,14 @@ class HandlerTest extends TestCase
         $this->spreadsheet->load($this->file);
         $this->expectException(\Exception::class);
         $this->spreadsheet->getRow('b');
+    }
+
+    public function tearDown()
+    {
+        $this->spreadsheet->load($this->file);
+        $this->spreadsheet->writeCell('A2', 'Line 2A');
+        $this->setColorsSaveLoad('font', 'A2:B3', 'FF000000');
+        $this->setColorsSaveLoad('fill', 'A2:B3', 'FF000000');
     }
 
     /**
