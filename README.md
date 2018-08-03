@@ -30,6 +30,11 @@ $spread = new EasySpreadsheet;
 $spread->load($file);
 ```
 
+Load without header on spreadsheet:
+```php
+$spread->load($file, false);
+```
+
 Get all rows:
 ```php
 $spread->getRows()
