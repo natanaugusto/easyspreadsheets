@@ -55,8 +55,6 @@ class HandlerTest extends TestCase
     public function testLoadWithoutHeader()
     {
         $this->spreadsheet->load($this->file, false);
-        $this->assertEquals(Handler::class, get_class($this->spreadsheet));
-
         $this->assertEquals($this->getRows(true), $this->spreadsheet->getRows());
     }
     
@@ -115,7 +113,7 @@ class HandlerTest extends TestCase
         $this->spreadsheet->writeCell('A2', 'Writed');
         $this->spreadsheet->save();
 
-        $this->spreadsheet->load($this->file, true);
+        $this->spreadsheet->load($this->file, true, true);
         $row = $this->spreadsheet->getRow(2);
         $this->assertEquals('Writed', $row['Column A']);
     }
@@ -203,7 +201,15 @@ class HandlerTest extends TestCase
     protected function getRows($noheader = false)
     {
         if($noheader) {
-            return $this->rows;
+            // That's a shit brazillian way
+            $pepe = [$this->header] + $this->rows;
+            $rows = [];
+            $key = 1;
+            foreach($pepe as $row) {
+                $rows[$key] = $row;
+                ++$key;
+            }
+            return $rows;
         }
         $rows = $this->rows;
         array_walk($rows, function (&$item) {
@@ -257,6 +263,6 @@ class HandlerTest extends TestCase
         }
         // Save
         $this->spreadsheet->save();
-        $this->spreadsheet->load($this->file, true);
+        $this->spreadsheet->load($this->file, true, true);
     }
 }

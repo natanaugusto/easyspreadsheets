@@ -17,7 +17,7 @@ class Handler
      *
      * @var integer
      */
-    protected static $OFFSET_LINE = 2;
+    protected static $OFFSET_LINE = 1;
     /**
      * Object PHPSpreadsheet
      *
@@ -79,19 +79,15 @@ class Handler
      */
     protected $rows = [];
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->currentRow = self::$OFFSET_LINE;
-    }
-    /**
      * Return the current row number @var $currentRow
      * (@var $currentRow init with the @var $OFFSET_LINE value)
      * @return integer
      */
     public function getCurrentRow()
     {
+        if(is_null($this->currentRow)) {
+            $this->currentRow += self::$OFFSET_LINE;
+        }
         return $this->currentRow;
     }
     /**
@@ -115,7 +111,7 @@ class Handler
     /**
      * Return the laoded row
      *
-     * @return void
+     * @return integer
      */
     public function getRows()
     {
@@ -123,14 +119,14 @@ class Handler
     }
     /**
      * Retorna a linha atual ou a linha passada por parametro
-     *
+     * (Some mistakes was made down there)
      * @param integer $line
      * @throws Exception
      * @return array
      */
     public function getRow($line = null)
     {
-        $line = is_null($line) ? $this->currentRow : $line;
+        $line = is_null($line) ? $this->getCurrentRow() : $line;
         if(!is_integer($line)) {
             throw new Exception("The line is not a integer", 3);
         }
@@ -191,11 +187,12 @@ class Handler
      * Load the spreadshee resource
      *
      * @param string  $path
+     * @param boolean $header
      * @param boolean $force
      * @throws Exception
      * @return Handler
      */
-    public function load($path, $force = false)
+    public function load($path, $header = true, $force = false)
     {
         if(!file_exists($path)) {
             throw new Exception("The file {$path} not found.", 1);
@@ -211,7 +208,12 @@ class Handler
             $this->currentRow = self::$OFFSET_LINE;
             $this->linesRead = 0;
         }
-        $this->loadHeader();
+        if($header === true) {
+            self::$OFFSET_LINE = 2;
+            $this->loadHeader();
+        } else {
+            self::$OFFSET_LINE = 1;
+        }
         $this->loadRows();
         return $this;
     }
@@ -272,6 +274,7 @@ class Handler
      */
     public function loadRows()
     {
+        $noHeader = empty($this->header);
         if($this->linesRead === 0) {
             $this->linesRead += self::$OFFSET_LINE;
         }
@@ -286,7 +289,14 @@ class Handler
         $result = $this->activesheet->rangeToArray($rangeToRead);
         $rows = [];
         foreach($result as $key => $row) {
-            $rows[$this->linesRead + $key] = array_combine($this->header, $row);
+            $row = $noHeader ?
+                $this->removeNullCells($row) : array_combine($this->header, $row);
+                    
+            array_walk($row, function (&$val) {
+                $val = trim($val);
+            });
+            
+            $rows[$this->linesRead + $key] = $row;
         }
         $this->linesRead += count($rows);
         $this->rows = $rows;
@@ -407,5 +417,22 @@ class Handler
     public function convertPosition($column, $line)
     {
         return Coordinate::stringFromColumnIndex($column) . $line;
+    }
+    /**
+     * Remove all empty cells.
+     * That's a hack. And is not beautiful
+     * I'm sorry
+     *
+     * @param array $row
+     * @return array
+     */
+    protected function removeNullCells(array $row)
+    {
+        $column = count($row) - 1;
+        while(is_null($row[$column])) {
+            unset($row[$column]);
+            --$column;
+        }
+        return $row;
     }
 }
