@@ -17,25 +17,25 @@ class HandlerTest extends TestCase
     ];
     protected $rows =  [
         2 => [
-            'Column A' => 'Line 2A',
-            'Column B' => 'Line 2B',
-            'Column C' => 2,
-            'Column D' => '26/10/89',
-            'Column E' => 'Line 2E'],
+            'Line 2A',
+            'Line 2B',
+            2,
+            '26/10/89',
+            'Line 2E'],
 
         3 => [
-            'Column A' => 'Line 3A',
-            'Column B' => 'Line 3B',
-            'Column C' => 3,
-            'Column D' => '26/10/89',
-            'Column E' => 'Line 2E'],
+            'Line 3A',
+            'Line 3B',
+             3,
+            '26/10/89',
+            'Line 2E'],
 
         4 => [
-            'Column A' => 'Line 4A',
-            'Column B' => 'Line 4B',
-            'Column C' => 4,
-            'Column D' => '26/10/89',
-            'Column E' => 'Line 2E'],
+            'Line 4A',
+            'Line 4B',
+            4,
+            '26/10/89',
+            'Line 2E'],
 
     ];
 
@@ -46,13 +46,18 @@ class HandlerTest extends TestCase
         $this->spreadsheet = new Handler();       
     }
     
-    /** 
-     * Test the spreadsheet open
-     */
-    public function testOpen()
+    public function testLoad()
     {
         $this->spreadsheet->load($this->file);
-        $this->assertTrue(true);
+        $this->assertEquals(Handler::class, get_class($this->spreadsheet));
+    }
+    
+    public function testLoadWithoutHeader()
+    {
+        $this->spreadsheet->load($this->file, false);
+        $this->assertEquals(Handler::class, get_class($this->spreadsheet));
+
+        $this->assertEquals($this->getRows(true), $this->spreadsheet->getRows());
     }
     
     public function testGetHead()
@@ -64,19 +69,19 @@ class HandlerTest extends TestCase
     public function testGetRows()
     {
         $this->spreadsheet->load($this->file);
-        $this->assertEquals($this->rows, $this->spreadsheet->getRows());
+        $this->assertEquals($this->getRows(), $this->spreadsheet->getRows());
     }
 
     public function testNavigateBetweenRows()
     {
         $this->spreadsheet->load($this->file);
-        $this->assertEquals($this->rows[2], $this->spreadsheet->getRow());
+        $this->assertEquals($this->getRows()[2], $this->spreadsheet->getRow());
         $this->assertTrue($this->spreadsheet->hasNext());
-        $this->assertEquals($this->rows[3], $this->spreadsheet->getRow());
+        $this->assertEquals($this->getRows()[3], $this->spreadsheet->getRow());
         $this->assertTrue($this->spreadsheet->hasNext());
-        $this->assertEquals($this->rows[4], $this->spreadsheet->getRow());
+        $this->assertEquals($this->getRows()[4], $this->spreadsheet->getRow());
         $this->assertFalse($this->spreadsheet->hasNext());
-        $this->assertEquals($this->rows[2], $this->spreadsheet->getRow(2));
+        $this->assertEquals($this->getRows()[2], $this->spreadsheet->getRow(2));
     }
 
     public function testGetColors()
@@ -187,6 +192,24 @@ class HandlerTest extends TestCase
         $this->spreadsheet->writeCell('A2', 'Line 2A');
         $this->setColorsSaveLoad('font', 'A2:B3', 'FF000000');
         $this->setColorsSaveLoad('fill', 'A2:B3', 'FF000000');
+    }
+
+    /**
+     * Return the preconfigured rows
+     *
+     * @param boolean $noheader
+     * @return array
+     */
+    protected function getRows($noheader = false)
+    {
+        if($noheader) {
+            return $this->rows;
+        }
+        $rows = $this->rows;
+        array_walk($rows, function (&$item) {
+            $item = array_combine($this->header, $item);
+        });
+        return $rows;
     }
 
     /**
